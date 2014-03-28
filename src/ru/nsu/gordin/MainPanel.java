@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class MainPanel extends JPanel{
-    protected Action aboutAction, exitAction, settingAction,
+    protected Action aboutAction, exitAction, settingAction, resetAction,
                      moveLeftAction, moveRightAction, moveUpAction, moveDownAction,
                      increaseAction, decreaseAction;
 
@@ -50,6 +50,10 @@ public class MainPanel extends JPanel{
                 createToolIcon("cog_icon&16"),
                 "Setting",
                 new Integer(KeyEvent.VK_S), panel);
+        resetAction = new ResetAction("Reset",
+                createToolIcon("refresh_icon&16"),
+                "Reset graphic",
+                new Integer(KeyEvent.VK_R), panel);
     }
 
     protected static ImageIcon createToolIcon(String imageName) {
@@ -93,7 +97,7 @@ public class MainPanel extends JPanel{
         JMenuItem menuItem = null;
         JMenu viewMenu = new JMenu("View");
 
-        Action[] actions = {moveLeftAction, moveRightAction, moveUpAction, moveDownAction,
+        Action[] actions = {resetAction, moveLeftAction, moveRightAction, moveUpAction, moveDownAction,
                 increaseAction, decreaseAction};
         for (int i = 0; i < actions.length; i++) {
             menuItem = new JMenuItem(actions[i]);
@@ -125,7 +129,7 @@ public class MainPanel extends JPanel{
         add(toolBar, BorderLayout.PAGE_START);
 
         Action[] actions = {moveLeftAction, moveRightAction, moveUpAction, moveDownAction,
-                increaseAction, decreaseAction, settingAction, aboutAction, exitAction};
+                increaseAction, decreaseAction, resetAction, settingAction, aboutAction, exitAction};
 
         for(int i = 0; i < actions.length; i++){
             button = new JButton(actions[i]);
