@@ -14,24 +14,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class DrawPanel extends JPanel implements MouseMotionListener, MouseWheelListener, ItemListener, ChangeListener{
+public class DrawPanel extends JPanel implements MouseMotionListener, MouseWheelListener{
     private JFrame frame;
-    private JSpinner moveSpinner;
-    private JCheckBox moveCheckBox;
-    private boolean isMovable = true;
-    private JSpinner scaleSpinner;
-    private JCheckBox scaleCheckBox;
     private boolean isScrollable = true;
-    private JButton okButton;
-    private JButton cancelButton;
+    private boolean isMovable = true;
     private int pixelUnit;
     private int mouseX;
     private int mouseY;
     private int centerX;
     private int centerY;
     private int stepMove;
-    private int tmpMove;
-    private int tmpScale;
     private int stepScale;
     static final int STEP_MIN = 1;
     static final int SCALE_MIN = 1;
@@ -48,23 +40,48 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseWheel
     public DrawPanel(JFrame frame) {
         super(new BorderLayout());
         this.frame = frame;
-        moveSpinner = new JSpinner(new SpinnerNumberModel(STEP_INIT, STEP_MIN, STEP_MAX, 1));
         stepMove = STEP_INIT;
-        scaleSpinner = new JSpinner(new SpinnerNumberModel(SCALE_INIT, SCALE_MIN, SCALE_MAX, 1));
         stepScale = SCALE_INIT;
         pixelUnit = PIXEL_UNIT_INIT;
-//        moveSpinner.addChangeListener(this);
-//        scaleSpinner.addChangeListener(this);
-        moveCheckBox = new JCheckBox();
-//        moveCheckBox.addItemListener(this);
-        moveCheckBox.setSelected(true);
-        scaleCheckBox = new JCheckBox();
-//        scaleCheckBox.addItemListener(this);
-        scaleCheckBox.setSelected(true);
         canvasPanel = new CanvasPanel();
         canvasPanel.addMouseMotionListener(this);
         canvasPanel.addMouseWheelListener(this);
         add(canvasPanel, BorderLayout.CENTER);
+    }
+
+
+
+    public boolean isScrollable() {
+        return isScrollable;
+    }
+
+    public boolean isMovable() {
+        return isMovable;
+    }
+
+    public void setScrollable(boolean isScrollable) {
+        this.isScrollable = isScrollable;
+    }
+
+    public void setMovable(boolean isMovable) {
+        this.isMovable = isMovable;
+    }
+
+
+    public int getStepMove() {
+        return stepMove;
+    }
+
+    public int getStepScale() {
+        return stepScale;
+    }
+
+    public void setStepScale(int stepScale) {
+        this.stepScale = stepScale;
+    }
+
+    public void setStepMove(int stepMove) {
+        this.stepMove = stepMove;
     }
 
     public void increase() {
@@ -79,22 +96,22 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseWheel
     }
 
     public void moveLeft() {
-        centerX -= stepMove;
-        canvasPanel.repaint();
-    }
-
-    public void moveRight() {
         centerX += stepMove;
         canvasPanel.repaint();
     }
 
+    public void moveRight() {
+        centerX -= stepMove;
+        canvasPanel.repaint();
+    }
+
     public void moveUp() {
-        centerY -= stepMove;
+        centerY += stepMove;
         canvasPanel.repaint();
     }
 
     public void moveDown() {
-        centerY += stepMove;
+        centerY -= stepMove;
         canvasPanel.repaint();
     }
 
@@ -105,53 +122,16 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseWheel
         canvasPanel.repaint();
     }
 
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        JSpinner source = (JSpinner)e.getSource();
-        if(source == moveSpinner) {
-            tmpMove = (Integer)source.getValue();
-        }
-        else if(source == scaleSpinner) {
-            tmpScale = (Integer)source.getValue();
-        }
-    }
+
 
     public void showSettingDialog() {
-        JDialog dialog = new JDialog(frame, "Setting", true);
-        dialog.setLayout(new GridLayout(3, 1));
-        JPanel movePanel = new JPanel(new GridLayout(2, 2));
-        movePanel.setBorder(new TitledBorder("Move"));
-        movePanel.add(new JLabel("move step"));
-        movePanel.add(moveSpinner);
-        movePanel.add(new JLabel("mouse move"));
-        movePanel.add(moveCheckBox);
-        JPanel scalePanel = new JPanel(new GridLayout(2, 2));
-        scalePanel.setBorder(new TitledBorder("Scale"));
-        scalePanel.add(new JLabel("scale step"));
-        scalePanel.add(scaleSpinner);
-        scalePanel.add(new JLabel("scroll scale"));
-        scalePanel.add(scaleCheckBox);
-        JPanel buttonPanel = new JPanel();
-        okButton = new JButton("OK");
-//        okButton.addActionListener(this);
-        cancelButton = new JButton("Cancel");
-//        cancelButton.addActionListener(this);
-        buttonPanel.add(okButton);
-        buttonPanel.add(cancelButton);
-        dialog.add(movePanel);
-        dialog.add(scalePanel);
-        dialog.add(buttonPanel);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.pack();
-        dialog.setResizable(false);
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
+        SettingDialog settingDialog = new SettingDialog(frame, this);
+        settingDialog.setVisible(true);
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
         if(!isMovable) return;
-//        System.out.println("dragged " + e.getX() + " " + e.getY());
         centerX += e.getX() - mouseX;
         centerY += e.getY() - mouseY;
         mouseX = e.getX();
@@ -162,7 +142,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseWheel
     @Override
     public void mouseMoved(MouseEvent e) {
         if(!isMovable) return;
-//        System.out.println("moved " + e.getX() + " " + e.getY());
         mouseX = e.getX();
         mouseY = e.getY();
     }
@@ -170,7 +149,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseWheel
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         if(!isScrollable) return;
-//        System.out.println(e.getWheelRotation());
         int step = stepScale * (-e.getWheelRotation());
         if(pixelUnit + step > PIXEL_UNIT_MIN) {
             pixelUnit += step;
@@ -181,16 +159,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseWheel
         canvasPanel.repaint();
     }
 
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        JCheckBox source = (JCheckBox)e.getSource();
-        if(source == scaleCheckBox) {
-            isScrollable = (ItemEvent.SELECTED == e.getStateChange());
-        }
-        else if(source == moveCheckBox){
-            isMovable = (ItemEvent.SELECTED == e.getStateChange());
-        }
-    }
 
     protected class CanvasPanel extends JPanel {
         private boolean init = false;
