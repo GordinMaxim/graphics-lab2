@@ -101,12 +101,6 @@ public class SettingDialog extends JDialog implements ActionListener, ChangeList
             panel.setMovable(isMovable);
             panel.setScrollable(isScrollable);
         }
-//        else if(source == cancelButton) {
-//            stepMove = panel.getStepMove();
-//            stepScale = panel.getStepScale();
-//            isMovable = panel.isMovable();
-//            isScrollable = panel.isScrollable();
-//        }
         dispose();
     }
 }
